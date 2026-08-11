@@ -1,0 +1,144 @@
+/* モバイル表示調整 */
+@media (max-width: 768px) {
+  .app-wrapper, .private-container { flex-direction: column; gap: 12px; }
+  .sidebar, .random-sidebar { width: 100%; }
+  
+  .slots-container {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    max-height: none;
+    padding-bottom: 8px;
+    scroll-snap-type: x mandatory;
+  }
+
+  .visual-slot-card {
+    width: 170px;
+    scroll-snap-align: start;
+    flex-shrink: 0;
+  }
+  .slot-preview-weapon-name { display: none; }
+  .slot-preview-weapon-row { justify-content: center; padding: 4px; }
+
+  /* 1列（縦並び）に変更 */
+  .coord-grid { grid-template-columns: 1fr; gap: 10px; }
+
+  /* カード全体 */
+  .slot-card {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px;
+    gap: 4px;
+    position: relative;
+  }
+
+  /* クリア（リセット）ボタンの位置調整 */
+  .clear-part-btn {
+    position: absolute !important;
+    top: 6px !important;
+    right: 6px !important;
+    transform: none !important;
+    width: 22px;
+    height: 22px;
+    font-size: 0.75rem;
+    z-index: 10;
+  }
+
+  /* 左側エリア：横幅を140pxに固定（これでギアパワーの位置が一切ブレなくなります） */
+  .clickable-slot {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    text-align: left;
+    flex: none;
+    width: 140px; /* ★画面幅に合わせて 130px〜150px 程度で微調整してください */
+    min-width: 0;
+  }
+
+  .slot-title {
+    margin-bottom: 0;
+    min-width: 30px;
+    font-size: 0.68rem;
+    flex-shrink: 0;
+  }
+
+  .image-placeholder {
+    width: 36px;
+    height: 36px;
+    margin: 0;
+    flex-shrink: 0;
+    font-size: 1rem;
+    border-radius: 6px;
+  }
+
+  .selected-name {
+    margin-bottom: 0;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+    flex: 1;
+  }
+
+  /* ブキ用：サブ・スペシャル（margin-left: auto で右寄せ固定） */
+  .weapon-sub-special-box {
+    border-top: none;
+    padding-top: 0;
+    padding-right: 22px; /* ✕ボタンとの被り防止 */
+    margin-top: 0;
+    margin-left: auto; /* ★右側の定位置に揃える */
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .sub-sp-icon-circle {
+    width: 30px !important;
+    height: 30px !important;
+  }
+
+  /* ギア用：メイン＋サブギアパワー（margin-left: auto で右寄せ固定） */
+  .gear-power-box {
+    border-top: none;
+    padding-top: 0;
+    padding-right: 22px; /* ✕ボタンとの被り防止 */
+    margin-left: auto; /* ★右側の定位置に揃える */
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .main-power-circle {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 0.9rem;
+  }
+
+  .sub-powers-row {
+    gap: 3px !important;
+  }
+
+  .sub-power-circle {
+    width: 24px !important;
+    height: 24px !important;
+    font-size: 0.65rem;
+  }
+
+  /* マイギア登録ボタン：100%幅で2行目に配置 */
+  .save-mygear-btn {
+    width: 100%;
+    margin-top: 2px;
+    padding: 4px 8px;
+    font-size: 0.72rem;
+    white-space: nowrap;
+    border-radius: var(--radius-sm);
+  }
+
+  .meta-panel { grid-template-columns: 1fr; gap: 8px; }
+  .player-grid { grid-template-columns: 1fr; }
+  .category-content { grid-template-columns: 1fr; }
+}

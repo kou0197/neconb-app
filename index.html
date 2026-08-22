@@ -424,7 +424,13 @@
 
       <div class="main-content">
         <div class="private-card">
-          <div class="section-title" id="preview-display-title" style="margin-bottom: 10px; font-size: 1.1rem;">プラベ詳細</div>
+          <!-- ★ タイトル横にチーム確認ボタンを配置 -->
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <div class="section-title" id="preview-display-title" style="font-size:1.1rem; margin-bottom:0;">プラベ詳細</div>
+            <button class="sub-btn" id="btn-view-private-teams" onclick="openPrivateTeamModal()" style="display:none; padding:4px 10px; font-size:0.8rem; color:var(--splat-yellow); border-color:var(--splat-yellow);">
+              👥 チーム確認
+            </button>
+          </div>
           <div class="private-summary-box" id="private-preview">プラベが選択されていません。</div>
           <button class="action-btn" onclick="copyPrivateMatchText()" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px;"><span class="tab-icon icon-copy" style="filter: brightness(0);"></span> この内容をコピー</button>
         </div>
@@ -624,6 +630,18 @@
       </div>
 
       <button class="action-btn" onclick="saveConstraintSettings()" style="margin-top: 10px;">設定を保存して閉じる</button>
+    </div>
+  </div>
+</div>
+
+<!-- ★ プラベチーム確認モーダル -->
+<div class="modal-overlay" id="private-team-modal" onclick="closePrivateTeamModal(event)">
+  <div class="modal-window" style="max-width: 500px;" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title" id="private-team-modal-title">👥 チーム分け一覧</div>
+      <button class="close-btn" onclick="closePrivateTeamModal()">&times;</button>
+    </div>
+    <div class="modal-body" id="private-team-modal-body" style="padding:14px; max-height:75vh; overflow-y:auto;">
     </div>
   </div>
 </div>

@@ -1,4 +1,4 @@
-  let draggedKey = null;
+let draggedKey = null;
   let touchDraggedCard = null;
   let touchStartY = 0;
   let scrollPositionBeforeModal = 0;
@@ -260,7 +260,6 @@
     if (tabId === 'home') updateHomeDashboardStats();
     if (tabId !== 'editor') closeMyCodeDrawer();
 
-    // ★修正：常に現在のタブを localStorage に記録する
     localStorage.setItem(STORAGE_KEY_LAST_TAB, tabId);
     
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -295,7 +294,6 @@
     const toast = document.createElement('div');
     toast.className = 'toast';
     
-    // アイコンクラスが指定されている場合は画像アイコン（span）を挿入
     let iconHtml = iconClass ? `<span class="tab-icon ${iconClass}" style="width:20px; height:20px; flex-shrink:0;"></span>` : "";
     toast.innerHTML = `${iconHtml}<span>${message}</span>`;
     
@@ -1891,7 +1889,6 @@
           `</div>`;
       }
 
-      // ギアのメインパワーアイコン（アタマ・フク・クツ）のプレビュー作成
       const gearParts = ['head', 'clothes', 'shoes'];
       let gearDotsHTML = '';
       gearParts.forEach(part => {
@@ -2046,8 +2043,7 @@
     localStorage.setItem(STORAGE_KEY_SLOTS, JSON.stringify(slotsData));
   }
 
-    function getWeaponRangeRank(weaponName) {
-    // ランク1：超長射程（ライン4.5本以上）
+  function getWeaponRangeRank(weaponName) {
     if (
       weaponName.includes("ジェットスイーパー") ||
       weaponName.includes("ダイナモ") ||
@@ -2064,7 +2060,6 @@
       return 1;
     }
 
-    // ランク2：長射程（ライン3.8〜4.4本）
     if (
       weaponName.includes("ボトル") ||
       weaponName.includes("Rブラスター") ||
@@ -2078,7 +2073,6 @@
       return 2;
     }
 
-    // ランク3：中長射程（ライン3.0〜3.7本）
     if (
       weaponName.includes("プライム") ||
       weaponName.includes("96") ||
@@ -2098,7 +2092,6 @@
       return 3;
     }
 
-    // ランク4：中射程（ライン2.3〜2.9本）
     if (
       weaponName.includes("わかば") ||
       weaponName.includes("モデラー") ||
@@ -2119,7 +2112,6 @@
       return 4;
     }
 
-    // ランク5：短射程（ライン22以下）
     if (
       weaponName.includes("ボールド") ||
       weaponName.includes("スパッタリー") ||
@@ -2129,9 +2121,8 @@
       return 5;
     }
 
-    return 4; // デフォルトは中射程
+    return 4;
   }
-  
   
   let WEAPON_MAP = new Map(), ALL_WEAPONS = [], activeWeapons = [];
   let currentResultState = { alphaTeam: [], betaTeam: [], spectators: [] };
@@ -2614,7 +2605,6 @@
 
   function assignWeaponsToTeams(alphaTeam, betaTeam, isNoDup, isBalance) {
     if (!isBalance) {
-      // 従来のランダム割り当て（元の処理）
       const playerCount = Math.max(alphaTeam.length, betaTeam.length);
       let pool = [...activeWeapons];
       for (let i = 0; i < playerCount; i++) {
@@ -2634,45 +2624,35 @@
       return;
     }
 
-    // --- ミラーバランス調整（完全ランクマッチング） ---
-    // 1. 全ブキをランクごとに分類
     const weaponsByRank = { 1: [], 2: [], 3: [], 4: [], 5: [] };
     activeWeapons.forEach(name => {
       const w = WEAPON_MAP.get(name);
       if (weaponsByRank[w.rangeRank]) weaponsByRank[w.rangeRank].push(w);
     });
-    // 各ランクをシャッフル
+
     Object.keys(weaponsByRank).forEach(r => weaponsByRank[r] = shuffleArray(weaponsByRank[r]));
 
-    // 2. チームごとにブキを決定
     const fillTeam = (team) => {
       return team.map(() => {
-        // 残っているランクからランダムに選ぶ
         const availableRanks = Object.keys(weaponsByRank).filter(r => weaponsByRank[r].length > 0);
-        if (availableRanks.length === 0) return null; // ブキ切れ
+        if (availableRanks.length === 0) return null;
         const r = availableRanks[Math.floor(Math.random() * availableRanks.length)];
         return { rank: r, weapon: weaponsByRank[r].pop() };
       });
     };
 
-    // αチームのブキを決定
     const alphaWeapons = fillTeam(alphaTeam);
     
-    // βチームはαのランクに合わせて決定（これがミラー）
     betaTeam.forEach((p, i) => {
       const alphaRank = alphaWeapons[i] ? alphaWeapons[i].rank : null;
-      
-      // αと同じランクのブキがβに残っていればそれを使う
       if (alphaRank && weaponsByRank[alphaRank].length > 0) {
         p.weaponObj = weaponsByRank[alphaRank].pop();
       } else {
-        // なければ残りのブキから適当に選ぶ
         const available = Object.values(weaponsByRank).flat();
         p.weaponObj = available.length > 0 ? available[Math.floor(Math.random() * available.length)] : null;
       }
     });
 
-    // αチームのブキも確定させる
     alphaTeam.forEach((p, i) => {
       p.weaponObj = alphaWeapons[i] ? alphaWeapons[i].weapon : null;
     });
@@ -2735,25 +2715,204 @@
     }
   }
 
+  /* --- プラベ詳細：コピー用テキスト生成（部屋パス非表示） --- */
   function generatePrivateText(data) {
     let formattedDate = "未定";
     if (data.datetime) {
       const dt = new Date(data.datetime);
-      if (!isNaN(dt.getTime())) formattedDate = `${dt.getMonth() + 1}/${dt.getDate()} ${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`;
+      if (!isNaN(dt.getTime())) {
+        formattedDate = `${dt.getMonth() + 1}/${dt.getDate()} ${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`;
+      }
     }
+
+    let teamText = "";
+
+    // 1. 試合ごとのチーム分け (matches)
+    if (data.matches && Array.isArray(data.matches) && data.matches.length > 0) {
+      teamText += `\n■ チーム・試合分け\n`;
+      data.matches.forEach((m, idx) => {
+        teamText += `\n【${m.round || `第${idx + 1}試合`}】\n`;
+        if (m.alpha?.length) teamText += `▼ α TEAM: ` + m.alpha.join(', ') + `\n`;
+        if (m.beta?.length) teamText += `▼ β TEAM: ` + m.beta.join(', ') + `\n`;
+        if (m.spectators?.length) teamText += `▼ 観戦: ` + m.spectators.join('、') + `\n`;
+      });
+      teamText += `\n`;
+    }
+    // 2. 3チーム以上のチーム一覧 (teams 配列)
+    else if (data.teams && Array.isArray(data.teams) && data.teams.length > 0) {
+      teamText += `\n■ チーム分け\n`;
+      data.teams.forEach(t => {
+        teamText += `▼ ${t.name || 'チーム'} (${t.members?.length || 0}名)\n・` + (t.members || []).join('\n・') + `\n\n`;
+      });
+      if (data.spectators?.length) {
+        teamText += `▼ 観戦\n・` + data.spectators.join('、') + `\n\n`;
+      }
+    }
+    // 3. 単一のα・βチーム (teams オブジェクト)
+    else if (data.teams && (data.teams.alpha || data.teams.beta)) {
+      teamText += `\n■ チーム分け\n`;
+      if (data.teams.alpha?.length) teamText += `▼ α TEAM\n` + data.teams.alpha.map(m => `・${m}`).join('\n') + `\n`;
+      if (data.teams.beta?.length) teamText += `▼ β TEAM\n` + data.teams.beta.map(m => `・${m}`).join('\n') + `\n`;
+      const specs = data.teams.spectators || data.spectators;
+      if (specs?.length) teamText += `▼ 観戦\n・` + specs.join('、') + `\n\n`;
+    }
+
     const memberArr = data.members ? data.members.split('\n').map(m => m.trim()).filter(m => m !== '') : [];
-    return `【 ${data.title || 'プラベ'} 】\n\n■ 開催日時：${formattedDate}\n■ 部屋パス：${data.pass || 'なし'}\n■ 参加者 (${memberArr.length}名)：\n${memberArr.map(m => `・${m}`).join('\n')}\n\n■ ルール・内容：\n${data.content || '未設定'}`;
+    const memberListText = memberArr.length ? `■ 参加者 (${memberArr.length}名)：\n${memberArr.map(m => `・${m}`).join('\n')}\n\n` : "";
+
+    return `【 ${data.title || 'プラベ'} 】\n\n■ 開催日時：${formattedDate}\n\n${memberListText}${teamText}■ ルール・内容：\n${data.content || '未設定'}`;
   }
 
+  /* --- プラベ詳細：画面プレビュー描画（部屋パス非表示） --- */
   function updatePrivatePreview(data) {
     const previewEl = document.getElementById('private-preview');
-    if (previewEl) previewEl.innerHTML = generatePrivateText(data);
+    const teamBtn = document.getElementById('btn-view-private-teams');
+    if (!previewEl) return;
+
+    let formattedDate = "未定";
+    if (data.datetime) {
+      const dt = new Date(data.datetime);
+      if (!isNaN(dt.getTime())) {
+        formattedDate = `${dt.getMonth() + 1}/${dt.getDate()} ${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`;
+      }
+    }
+
+    // チームデータが存在するかどうかでタイトルの横のボタンの表示/非表示を切り替え
+    const hasTeams = (data.matches && data.matches.length > 0) || 
+                     (data.teams && (Array.isArray(data.teams) ? data.teams.length > 0 : (data.teams.alpha?.length || data.teams.beta?.length)));
+    
+    if (teamBtn) {
+      teamBtn.style.display = hasTeams ? "inline-flex" : "none";
+    }
+
+    const memberArr = data.members ? data.members.split('\n').map(m => m.trim()).filter(m => m !== '') : [];
+
+    previewEl.innerHTML = `
+      <div style="font-weight:bold; font-size:1.05rem; margin-bottom:8px;">【 ${data.title || 'プラベ'} 】</div>
+      <div><b>開催日時：</b>${formattedDate}</div>
+      ${memberArr.length ? `<div style="margin-top:8px;"><b>参加者 (${memberArr.length}名)：</b><br>${memberArr.join('、')}</div>` : ''}
+      <div style="margin-top:12px; border-top:1px dashed var(--border-color); padding-top:10px;">
+        <b>ルール・内容：</b>
+        <div style="margin-top:4px; line-height:1.5;">${data.content || '未設定'}</div>
+      </div>
+    `;
+  }
+
+  /* --- プラベチーム確認モーダル制御 --- */
+  function openPrivateTeamModal() {
+    const selected = privateMatchRecords.find(r => r.id === currentActivePrivateId);
+    if (!selected) return;
+
+    const modalBody = document.getElementById('private-team-modal-body');
+    const modalTitle = document.getElementById('private-team-modal-title');
+    if (modalTitle) modalTitle.innerText = `👥 ${selected.title || 'プラベ'} - チーム分け`;
+
+    let teamsHTML = "";
+
+    // 1. 試合ごとのチーム分け (matches)
+    if (selected.matches && Array.isArray(selected.matches) && selected.matches.length > 0) {
+      selected.matches.forEach((m, idx) => {
+        const alphaList = (m.alpha || []).map(p => `<div class="player-card" style="padding:4px 8px;"><div class="player-name" style="border:none; padding:0; font-size:0.82rem;">${p}</div></div>`).join('');
+        const betaList = (m.beta || []).map(p => `<div class="player-card" style="padding:4px 8px;"><div class="player-name" style="border:none; padding:0; font-size:0.82rem;">${p}</div></div>`).join('');
+        
+        let specHTML = "";
+        if (m.spectators && m.spectators.length > 0) {
+          specHTML = `
+            <div style="margin-top:6px; font-size:0.75rem; color:var(--text-muted); display:flex; align-items:center; gap:6px;">
+              <span>観戦:</span>
+              <div class="spectator-list" style="display:inline-flex; gap:4px;">
+                ${m.spectators.map(s => `<span class="spectator-chip" style="padding:2px 8px; font-size:0.75rem;">${s}</span>`).join('')}
+              </div>
+            </div>`;
+        }
+
+        teamsHTML += `
+          <div style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:10px 12px; margin-bottom:10px;">
+            <div style="font-weight:800; font-size:0.88rem; color:var(--splat-yellow); margin-bottom:8px; border-bottom:1px solid var(--border-color); padding-bottom:4px;">
+              🎮 ${m.round || `第${idx + 1}試合`}
+            </div>
+            <div class="teams-container" style="gap:8px;">
+              <div class="team-card alpha" style="padding:8px 10px;">
+                <div class="team-header" style="font-size:0.82rem; margin-bottom:6px; padding-bottom:4px;">α TEAM (${m.alpha?.length || 0})</div>
+                <div class="player-grid" style="gap:6px;">${alphaList}</div>
+              </div>
+              <div class="team-card beta" style="padding:8px 10px;">
+                <div class="team-header" style="font-size:0.82rem; margin-bottom:6px; padding-bottom:4px;">β TEAM (${m.beta?.length || 0})</div>
+                <div class="player-grid" style="gap:6px;">${betaList}</div>
+              </div>
+            </div>
+            ${specHTML}
+          </div>
+        `;
+      });
+    }
+    // 2. 3チーム以上のチーム一覧 (teams 配列)
+    else if (selected.teams && Array.isArray(selected.teams) && selected.teams.length > 0) {
+      teamsHTML += `
+        <div style="display:grid; grid-template-columns:1fr; gap:10px;">
+          ${selected.teams.map((t, idx) => `
+            <div class="team-card" style="padding:10px; border-color:var(--border-color);">
+              <div class="team-header" style="font-size:0.88rem; color:var(--splat-yellow); margin-bottom:6px; padding-bottom:4px;">
+                ${t.name || `チーム${idx + 1}`} (${t.members?.length || 0}名)
+              </div>
+              <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:6px;">
+                ${(t.members || []).map(p => `<div class="player-card" style="padding:4px 8px;"><div class="player-name" style="border:none; padding:0; font-size:0.82rem;">${p}</div></div>`).join('')}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+    // 3. 単一のα・βチーム (teams オブジェクト)
+    else if (selected.teams && (selected.teams.alpha || selected.teams.beta)) {
+      const alphaList = (selected.teams.alpha || []).map(m => `<div class="player-card" style="padding:6px 10px;"><div class="player-name" style="border:none; padding:0;">${m}</div></div>`).join('');
+      const betaList = (selected.teams.beta || []).map(m => `<div class="player-card" style="padding:6px 10px;"><div class="player-name" style="border:none; padding:0;">${m}</div></div>`).join('');
+      
+      let specHTML = "";
+      if (selected.teams.spectators?.length) {
+        specHTML = `
+          <div class="team-card" style="margin-top:8px; padding:10px;">
+            <div class="team-header" style="color:var(--text-muted); margin-bottom:6px; font-size:0.85rem;">観戦</div>
+            <div class="spectator-list">${selected.teams.spectators.map(s => `<div class="spectator-chip">${s}</div>`).join('')}</div>
+          </div>`;
+      }
+
+      teamsHTML = `
+        <div class="teams-container" style="gap:10px;">
+          <div class="team-card alpha" style="padding:12px;">
+            <div class="team-header" style="font-size:0.95rem; margin-bottom:8px;">α TEAM (${selected.teams.alpha?.length || 0})</div>
+            <div class="player-grid">${alphaList}</div>
+          </div>
+          <div class="team-card beta" style="padding:12px;">
+            <div class="team-header" style="font-size:0.95rem; margin-bottom:8px;">β TEAM (${selected.teams.beta?.length || 0})</div>
+            <div class="player-grid">${betaList}</div>
+          </div>
+          ${specHTML}
+        </div>
+      `;
+    }
+
+    if (modalBody) modalBody.innerHTML = teamsHTML || "<div style='color:var(--text-muted); text-align:center;'>チーム設定がありません</div>";
+
+    scrollPositionBeforeModal = window.pageYOffset || document.documentElement.scrollTop;
+    document.body.style.top = `-${scrollPositionBeforeModal}px`;
+    document.body.classList.add('modal-open');
+    document.getElementById('private-team-modal')?.classList.add('active');
+  }
+
+  function closePrivateTeamModal(event) {
+    if (event && event.target !== document.getElementById('private-team-modal')) return;
+    document.getElementById('private-team-modal')?.classList.remove('active');
+    document.body.classList.remove('modal-open');
+    document.body.style.top = '';
+    window.scrollTo(0, scrollPositionBeforeModal);
   }
 
   function copyPrivateMatchText() {
-    const previewEl = document.getElementById('private-preview');
-    if (!previewEl?.innerText) return;
-    navigator.clipboard.writeText(previewEl.innerText).then(() => showToast('📋 この内容をコピーしました！'));
+    const selected = privateMatchRecords.find(r => r.id === currentActivePrivateId);
+    if (!selected) return;
+    const textToCopy = generatePrivateText(selected);
+    navigator.clipboard.writeText(textToCopy).then(() => showToast('📋 この内容をコピーしました！'));
   }
 
   window.addEventListener('DOMContentLoaded', () => {
@@ -2761,8 +2920,6 @@
     initRandomMakerData(); 
     initPrivateMatchSystem();
     
-    // ★修正：LocalStorageから最後に開いていたタブを取得し、それを表示する
-    // 保存されていなければデフォルトで 'home' を表示
     const lastTab = localStorage.getItem(STORAGE_KEY_LAST_TAB) || 'home';
     switchMainTab(lastTab);
   });
